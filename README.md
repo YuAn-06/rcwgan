@@ -1,4 +1,4 @@
-# rcwgan
+# RCWGAN
 A CWGAN model with regression.
 we proposed a novel virtual sample generation method embedding a deep neural network as a regressor into conditional Wasserstein generative adversarial networks with gradient penalty (rCWGAN). In rCWGAN, conditional variables are introduced making the training supervised and a dual training algorithm is specially designed. With the advanced structure and training algorithm, the model has powerful sample generation capabilities and can handle prediction problems of quality variable.
 
