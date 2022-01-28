@@ -143,13 +143,12 @@ class rcwgan():
                 y = y_train[idx]
                 # noise = tf.random.normal(shape=(self.batch_size,self.z_input_size))
                 noise = np.random.normal(0,1,(self.batch_size,self.z_input_size))
-                # z_g = self.generator.predict_on_batch([noise,y])
+                
                 r_loss1 = self.regressor.train_on_batch(x, y)
                 z_g = self.generator.predict([noise,y])
-                # r_label = self.regressor.predict_on_batch(z_g)
+               
                 r_label = self.regressor.predict(z_g)
-                # r_loss1 = self.regressor.train_on_batch(x,y)
-                # r_loss2 = self.regressor.train_on_batch(z_g,y)
+               
                 d_loss = self.discriminator_model.train_on_batch([x,noise,y,r_label],[valid,fake,dummy])
 
             r_loss2 = self.regressor.train_on_batch(z_g, y)
