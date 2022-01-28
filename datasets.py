@@ -15,9 +15,9 @@ def gen_data_standard(n_instance):
     scale = 1 #noise scale
     noise = np.random.normal(0,0.0025,n_instance)
 
-    # X = np.column_stack((x1,x2))
+   
     X = x1
-    # y = _standard_sin(x1) + scale * noise
+    
     y = _standard_sin(x1)
     y = y.reshape((n_instance,1))
     return X,y
@@ -40,9 +40,7 @@ def get_dataset(n_instance = 1000, scenario="pta",seed=1):
         data = data.values
         x = data[:, :17]
         y = data[:, 17]
-        # x_train, x_test = train_test_split(x, test_size=0.3, random_state=1)
-        # y_train, y_test = train_test_split(y, test_size=0.3, random_state=1)
-        # return x_train, y_train.reshape(-1, 1), x_test, y_test.reshape(-1, 1)
+     
         return x,y
     elif scenario == "standard_data":
         x,y = gen_data_standard(n_instance=n_instance)
