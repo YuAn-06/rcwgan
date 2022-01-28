@@ -21,7 +21,6 @@ class TrainingConfig(typing.NamedTuple):
     batch_size : int =  35
     critic_num : int = 3
 
-
 class DatasetConfig(typing.NamedTuple):
     scenario : str = "standard_data"
     n_instance : int = 1000
