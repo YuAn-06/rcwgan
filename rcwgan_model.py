@@ -1,11 +1,11 @@
 from __future__ import print_function,division
 import numpy as np
-from keras.layers import Input
-from keras import  Model
-from keras.optimizers import Adam,SGD
+from tensorflow.keras.layers import Input
+from tensorflow.keras import  Model
+from tensorflow.keras.optimizers import Adam,SGD
 from network import build_generator,build_discriminator,build_regressor
-import keras.backend as K
-from keras.layers.merge import add
+import tensorflow.keras.backend as K
+from tensorflow.keras.layers import add
 import tensorflow as tf
 from functools import partial
 from sklearn.model_selection import KFold
@@ -63,13 +63,11 @@ class rcwgan():
         if exp_config.model.architecture is not None:
             self.architecture = exp_config.model.architecutre
 
-
         self.generator = build_generator(self)
         self.discriminator = build_discriminator(self)
         self.regressor = build_regressor(self)
 
         self.regressor.compile(optimizer=self.optimizer_reg, loss='mse')
-        self.generator.trainable = False
 
         x = Input(shape=(self.x_input_size,), name="real_x")
         y = Input(shape=(self.y_input_size,), name="label")
@@ -93,9 +91,6 @@ class rcwgan():
                                          loss=[self.wassertein_loss, self.wassertein_loss, partial_gp_loss],
                                          loss_weights=[1, 1, 10], experimental_run_tf_function=False)
 
-        self.discriminator.trainable = False
-        self.generator.trainable = True
-
         z_gen = Input(shape=(self.z_input_size,), name="z_gen")
         label_gen = Input(shape=(self.y_input_size,), name="label_gen")
         g_z = self.generator([z_gen, label_gen])
@@ -103,9 +98,6 @@ class rcwgan():
         self.generator_model = Model([z_gen, label_gen], valid)
         self.generator_model.compile(optimizer=self.optimizer_gen, loss=self.wassertein_loss)
 
-        # print(self.generator_model.summary())
-        # print(self.discriminator_model.summary())
-        # print(self.regressor.summary())
 
     def RandomWeightAverage(self,inputs):
         alpha = K.random_uniform(shape=(self.batch_size,1),minval=0,maxval=1)
@@ -131,27 +123,31 @@ class rcwgan():
         valid = -np.ones((self.batch_size,1))
         fake = np.ones((self.batch_size,1))
         dummy = np.zeros((self.batch_size,1))
-        dLossErr = np.zeros([epochs,1])
-        gLossErr = np.zeros([epochs,1])
-        rLossErr1 = np.zeros([epochs,1])
-        rLossErr2 = np.zeros([epochs,1])
+
         print(epochs)
         for epoch in range(epochs):
             for _ in range(self.critic_num):
+
                 idx = np.random.randint(0, x_train.shape[0], size=self.batch_size)
                 x = x_train[idx]
                 y = y_train[idx]
+                self.discriminator.trainable = True
+                self.generator.trainable = False
                 # noise = tf.random.normal(shape=(self.batch_size,self.z_input_size))
                 noise = np.random.normal(0,1,(self.batch_size,self.z_input_size))
-                
+
                 r_loss1 = self.regressor.train_on_batch(x, y)
+
                 z_g = self.generator.predict([noise,y])
-               
+
                 r_label = self.regressor.predict(z_g)
-               
+
                 d_loss = self.discriminator_model.train_on_batch([x,noise,y,r_label],[valid,fake,dummy])
 
-            r_loss2 = self.regressor.train_on_batch(z_g, y)
+                r_loss2 = self.regressor.train_on_batch(z_g, y)
+
+            self.discriminator.trainable = False
+            self.generator.trainable = True
             g_loss = self.generator_model.train_on_batch([noise,y],valid)
             # dLossErr[epoch] = d_loss[0]
             # gLossErr[epoch] = g_loss
@@ -163,7 +159,6 @@ class rcwgan():
 
     def predict(self,x_test):
         y = self.regressor.predict(x_test)
-
         return y
 
 
