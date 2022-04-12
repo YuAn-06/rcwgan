@@ -16,3 +16,6 @@ all packages need to be installed on a conda environment with python >= 3.0
 
 # Acknowledgement
 We appreciate efforts in https://github.com/eriklindernoren/Keras-GAN and in https://github.com/mkirchmeyer/ganRegression.
+
+# Related Work
+  Corresponding works has been published in Journal of Process Control
